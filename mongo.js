@@ -1,10 +1,5 @@
 const mongoose = require('mongoose')
 
-if(process.argv.length < 3) {
-  console.log('Please provide the password as an argument: node mongo.js <password>')
-  process.exit(1)
-}
-
 const password = process.argv[2]
 const name = process.argv[3]
 const number = process.argv[4]
@@ -25,7 +20,22 @@ const entry = new Entry({
   phone: number,
 })
 
-entry.save().then(result => {
-  console.log(`added ${entry.name} number ${entry.phone} to phonebook`)
-  mongoose.connection.close()
-})
+if(process.argv.length === 3) {
+  console.log('phonebook:')
+  Entry.find({}).then(result => {
+    result.forEach(entry => {
+      console.log(`${entry.name} ${entry.phone}`)
+    })
+    mongoose.connection.close()
+  })
+} else if(process.argv.length < 5){
+  console.log('ERROR: name or phone number missing')
+  process.exit(1)
+} else {
+  entry.save().then(result => {
+    console.log(`added ${entry.name} number ${entry.phone} to phonebook`)
+    mongoose.connection.close()
+  })
+}
+
+
