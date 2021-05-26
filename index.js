@@ -3,9 +3,9 @@ const morgan = require('morgan')
 const cors = require('cors')
 const dotenv = require('dotenv').config()
 
-const Entry = require('./models/entry')
-
 const app = express()
+
+const Entry = require('./models/entry')
 
 morgan.token('data', (req) => {
   return JSON.stringify(req.body)
@@ -58,21 +58,15 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  if(persons.find(person => person.name === body.name) !== undefined) {
-    return res.status(400).json({
-      error: 'name already exists in phonebook'
-    })
-  }
-  
-  const person = {
-    id: Math.floor(Math.random() * 1000),
+  const entry = new Entry({
     name: body.name,
-    number: body.number
-  }
+    phone: body.number
+  })
 
-  persons = persons.concat(person)
-
-  res.json(person)
+  console.log(entry)
+  entry.save().then(savedEntry => {
+    res.json(savedEntry)
+  })
 })
 
 const PORT = process.env.PORT || 3001 
