@@ -62,8 +62,7 @@ app.post('/api/persons', (req, res) => {
     name: body.name,
     phone: body.number
   })
-
-  console.log(entry)
+  
   entry.save().then(savedEntry => {
     res.json(savedEntry)
   })
