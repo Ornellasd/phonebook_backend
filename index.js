@@ -7,6 +7,16 @@ const app = express()
 
 const Entry = require('./models/entry')
 
+const errorHandler = (error, req, res, next) => {
+  console.log(error.message)
+
+  if(error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id'})
+  }
+
+  next(error)
+}
+
 morgan.token('data', (req) => {
   return JSON.stringify(req.body)
 })
@@ -15,6 +25,7 @@ app.use(express.json())
 app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 app.use(express.static('build'))
+app.use(errorHandler)
 
 app.get('/api/persons', (req, res) => {
   Entry.find({}).then(entries => {
