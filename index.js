@@ -8,10 +8,16 @@ const app = express()
 const Entry = require('./models/entry')
 
 const errorHandler = (error, req, res, next) => {
-  console.log(error.message)
-
   if(error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id'})
+  } else if(error.name === 'ValidationError') {
+    let errors = {};
+
+    Object.keys(error.errors).forEach((key) => {
+      errors[key] = error.errors[key].message;
+    });
+
+    return res.status(400).send(errors);
   }
 
   next(error)
@@ -25,7 +31,6 @@ app.use(express.json())
 app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 app.use(express.static('build'))
-app.use(errorHandler)
 
 app.get('/api/persons', (req, res) => {
   Entry.find({}).then(entries => {
@@ -33,7 +38,7 @@ app.get('/api/persons', (req, res) => {
   })
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Entry.findById(req.params.id)
     .then(entry => {
       if(entry) {
@@ -55,7 +60,7 @@ app.get('/info', (req, res) => {
     })
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Entry.findByIdAndDelete(req.params.id)
     .then(result => {
       res.status(204).end()
@@ -63,7 +68,7 @@ app.delete('/api/persons/:id', (req, res) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if(!body.name || !body.number) {
@@ -77,9 +82,11 @@ app.post('/api/persons', (req, res) => {
     phone: body.number
   })
   
-  entry.save().then(savedEntry => {
-    res.json(savedEntry)
-  })
+  entry.save()
+    .then(savedEntry => {
+      res.json(savedEntry)
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -96,7 +103,9 @@ app.put('/api/persons/:id', (req, res, next) => {
     })
     .catch(error => next(error)) 
 })
-  
+
+app.use(errorHandler)
+
 const PORT = process.env.PORT || 3001 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`)

@@ -14,7 +14,11 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFind
   })
 
 const entrySchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   phone: String,
 })
 
@@ -26,6 +30,6 @@ entrySchema.set('toJSON', {
   }
 })
 
-entrySchema.plugin(uniqueValidator)
+entrySchema.plugin(uniqueValidator, { message: 'name must be unique' })
 
 module.exports = mongoose.model('Entry', entrySchema)
