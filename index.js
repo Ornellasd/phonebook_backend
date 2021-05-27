@@ -34,27 +34,29 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(person => person.id === id)
-
-  if(person) {
-    res.json(person)
-  } else {
-    res.status(404).end()
-  }
+  Entry.findById(req.params.id)
+    .then(entry => {
+      if(entry) {
+        res.json(entry)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (req, res) => {
-  const phonebookLength = persons.length
-
-  res.send(`
-    <p>Phonebook has info for ${persons.length} people</p>
-    <p>${Date()}</p>
-  `)
+  Entry.find({})
+    .then(entries => {
+      res.send(`
+        <p>Phonebook has info for ${entries.length} people</p>
+        <p>${Date()}</p>
+      `)
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  Entry.findByIdAndRemove(req.params.id)
+  Entry.findOneAndRemove(req.params.id)
     .then(result => {
       res.status(204).end()
     })
