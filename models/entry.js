@@ -18,8 +18,12 @@ const entrySchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    minLength: 3
   },
-  phone: String,
+  phone: {
+    type: String,
+    minLength: 8
+  }
 })
 
 entrySchema.set('toJSON', {
