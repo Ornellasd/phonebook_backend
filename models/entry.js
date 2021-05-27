@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const url = process.env.MONGODB_URI
 
@@ -24,5 +25,7 @@ entrySchema.set('toJSON', {
     delete returnedObject.__v
   }
 })
+
+entrySchema.plugin(uniqueValidator)
 
 module.exports = mongoose.model('Entry', entrySchema)
