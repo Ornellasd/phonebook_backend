@@ -9,15 +9,15 @@ const Entry = require('./models/entry')
 
 const errorHandler = (error, req, res, next) => {
   if(error.name === 'CastError') {
-    return res.status(400).send({ error: 'malformatted id'})
+    return res.status(400).send({ error: 'malformatted id' })
   } else if(error.name === 'ValidationError') {
-    let errors = {};
+    let errors = {}
 
     Object.keys(error.errors).forEach((key) => {
-      errors[key] = error.errors[key].message;
-    });
+      errors[key] = error.errors[key].message
+    })
 
-    return res.status(400).send(errors);
+    return res.status(400).send(errors)
   }
 
   next(error)
@@ -81,7 +81,7 @@ app.post('/api/persons', (req, res, next) => {
     name: body.name,
     phone: body.number
   })
-  
+
   entry.save()
     .then(savedEntry => {
       res.json(savedEntry)
@@ -91,7 +91,7 @@ app.post('/api/persons', (req, res, next) => {
 
 app.put('/api/persons/:id', (req, res, next) => {
   const body = req.body
-  
+
   const entry = {
     name: body.name,
     phone: body.phone
@@ -101,12 +101,12 @@ app.put('/api/persons/:id', (req, res, next) => {
     .then(updatedEntry => {
       res.json(updatedEntry)
     })
-    .catch(error => next(error)) 
+    .catch(error => next(error))
 })
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3001 
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`)
 })
